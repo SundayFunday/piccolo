@@ -1,4 +1,7 @@
 **** This code has been slightly modified to control 6 Christmas light outputs. 
+Instead of the Piccolo visualizer, I replaced all code to control Arduino pins 8-13.
+I used an Arduino Micro.
+
 You can view the finished product on YouTube here. ****
 
 piccolo
