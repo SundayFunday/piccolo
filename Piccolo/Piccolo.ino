@@ -1,4 +1,7 @@
 /*
+THIS CODE WAS MODIFIED TO CONTROL 6 SETS OF CHRISTMAS LIGHTS. IT
+WILL NO LONGER CONTROL A PICCOLO.
+
 PICCOLO is a tiny Arduino-based audio visualizer.
 
 Hardware requirements:
@@ -28,8 +31,8 @@ ffft library is provided under its own terms -- see ffft.S for specifics.
 #include <ffft.h>
 #include <math.h>
 #include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_LEDBackpack.h>
+//#include <Adafruit_GFX.h>
+//#include <Adafruit_LEDBackpack.h>
 
 // Microphone connects to Analog Pin 0.  Corresponding ADC channel number
 // varies among boards...it's ADC0 on Uno and Mega, ADC7 on Leonardo.
@@ -107,10 +110,16 @@ static const uint8_t PROGMEM
     col0data, col1data, col2data, col3data,
     col4data, col5data, col6data, col7data };
 
-Adafruit_BicolorMatrix matrix = Adafruit_BicolorMatrix();
+//Adafruit_BicolorMatrix matrix = Adafruit_BicolorMatrix();
 
 void setup() {
   uint8_t i, j, nBins, binNum, *data;
+  pinMode(8, OUTPUT);
+  pinMode(9, OUTPUT);
+  pinMode(10, OUTPUT);
+  pinMode(11, OUTPUT);
+  pinMode(12, OUTPUT);
+  pinMode(13, OUTPUT);
 
   memset(peak, 0, sizeof(peak));
   memset(col , 0, sizeof(col));
@@ -125,7 +134,7 @@ void setup() {
       colDiv[i] += pgm_read_byte(&data[j]);
   }
 
-  matrix.begin(0x70);
+  //matrix.begin(0x70);
 
   // Init ADC free-run mode; f = ( 16MHz/prescaler ) / 13 cycles/conversion 
   ADMUX  = ADC_CHANNEL; // Channel sel, right-adj, use AREF pin
@@ -162,9 +171,9 @@ void loop() {
   }
 
   // Fill background w/colors, then idle parts of columns will erase
-  matrix.fillRect(0, 0, 8, 3, LED_RED);    // Upper section
-  matrix.fillRect(0, 3, 8, 2, LED_YELLOW); // Mid
-  matrix.fillRect(0, 5, 8, 3, LED_GREEN);  // Lower section
+  //matrix.fillRect(0, 0, 8, 3, LED_RED);    // Upper section
+  //matrix.fillRect(0, 3, 8, 2, LED_YELLOW); // Mid
+  //matrix.fillRect(0, 5, 8, 3, LED_GREEN);  // Lower section
 
   // Downsample spectrum output to 8 columns:
   for(x=0; x<8; x++) {
@@ -201,21 +210,22 @@ void loop() {
     if(c > peak[x]) peak[x] = c; // Keep dot on top
 
     if(peak[x] <= 0) { // Empty column?
-      matrix.drawLine(x, 0, x, 7, LED_OFF);
+      //matrix.drawLine(x, 0, x, 7, LED_OFF);
       continue;
     } else if(c < 8) { // Partial column?
-      matrix.drawLine(x, 0, x, 7 - c, LED_OFF);
+      //matrix.drawLine(x, 0, x, 7 - c, LED_OFF);
     }
 
     // The 'peak' dot color varies, but doesn't necessarily match
     // the three screen regions...yellow has a little extra influence.
     y = 8 - peak[x];
-    if(y < 2)      matrix.drawPixel(x, y, LED_RED);
-    else if(y < 6) matrix.drawPixel(x, y, LED_YELLOW);
-    else           matrix.drawPixel(x, y, LED_GREEN);
+    if(y < 3)      digitalWrite(x+7, LOW); //matrix.drawPixel(x, y, LED_RED);
+    else           digitalWrite(x+7, HIGH); //matrix.drawPixel(x, y, LED_YELLOW);
+    //else           //matrix.drawPixel(x, y, LED_GREEN);
+    Serial.print(x+8);
   }
 
-  matrix.writeDisplay();
+  //matrix.writeDisplay();
 
   // Every third frame, make the peak pixels drop by 1:
   if(++dotCount >= 3) {
@@ -239,4 +249,3 @@ ISR(ADC_vect) { // Audio-sampling interrupt
 
   if(++samplePos >= FFT_N) ADCSRA &= ~_BV(ADIE); // Buffer full, interrupt off
 }
-
