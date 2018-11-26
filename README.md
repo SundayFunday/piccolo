@@ -1,3 +1,6 @@
+**** This code has been slightly modified to control 6 Christmas light outputs. 
+You can view the finished product on YouTube here. ****
+
 piccolo
 =======
 
